@@ -1,0 +1,628 @@
+/* ═══════════════════════════════════════════════════════════════
+   INVENTORY PANEL — 3D FEATURES CSS
+   ═══════════════════════════════════════════════════════════════ */
+
+.inv-section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 1rem;
+    padding-left: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   1. INVENTORY SUMMARY CARDS
+   ═══════════════════════════════════════════════════════════════ */
+.inv-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1rem;
+}
+
+.inv-summary-card {
+    position: relative;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    transform: perspective(600px) rotateX(0deg);
+    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.3s ease;
+    overflow: hidden;
+}
+
+.inv-summary-card:hover {
+    transform: perspective(600px) rotateX(-4deg) translateY(-3px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.inv-summary-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+}
+
+.inv-summary-value {
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+}
+
+.inv-summary-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 0.25rem;
+    letter-spacing: 0.04em;
+}
+
+.inv-summary-sparkline {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    opacity: 0.25;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   2. ANIMATED STOCK LEVEL BARS
+   ═══════════════════════════════════════════════════════════════ */
+.stock-bars-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stock-bar-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.stock-bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stock-bar-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.stock-bar-qty {
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: monospace;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.stock-bar-track {
+    position: relative;
+    height: 20px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+}
+
+.stock-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.stock-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2));
+    border-radius: 0 10px 10px 0;
+    animation: stockBarShimmer 2s ease-in-out infinite;
+}
+
+@keyframes stockBarShimmer {
+
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.stock-bar-status {
+    display: inline-flex;
+    align-self: flex-start;
+    font-size: 0.55rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 8px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   3. 3D DONUT / RING CHART
+   ═══════════════════════════════════════════════════════════════ */
+.donut-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    padding: 2rem;
+    border-radius: 1.25rem;
+    background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.95) 0%, rgba(2, 6, 23, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    flex-wrap: wrap;
+}
+
+.donut-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none;
+}
+
+.donut-chart {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    flex-shrink: 0;
+}
+
+.donut-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.donut-track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.05);
+}
+
+.donut-segment {
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.donut-segment:hover {
+    opacity: 0.85;
+    filter: brightness(1.3);
+}
+
+.donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.donut-center-value {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+}
+
+.donut-center-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+.donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 5;
+}
+
+.donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.75rem;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.donut-legend-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(4px);
+}
+
+.donut-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.donut-legend-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.donut-legend-name {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.donut-legend-value {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   4. 3D ITEM CARDS GRID
+   ═══════════════════════════════════════════════════════════════ */
+.inv-cards-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.inv-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+}
+
+.inv-item-card {
+    position: relative;
+    padding: 1.25rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    transform: perspective(700px) rotateX(0deg) rotateY(0deg);
+    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.3s ease;
+    cursor: default;
+}
+
+.inv-item-card:hover {
+    transform: perspective(700px) rotateX(-3deg) rotateY(2deg) translateY(-4px);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.inv-item-card-low {
+    animation: invCardPulse 3s ease-in-out infinite;
+}
+
+@keyframes invCardPulse {
+
+    0%,
+    100% {
+        border-color: rgba(251, 191, 36, 0.2);
+    }
+
+    50% {
+        border-color: rgba(251, 191, 36, 0.5);
+        box-shadow: 0 0 15px rgba(251, 191, 36, 0.1);
+    }
+}
+
+.inv-item-card-out {
+    animation: invCardPulseRed 2.5s ease-in-out infinite;
+}
+
+@keyframes invCardPulseRed {
+
+    0%,
+    100% {
+        border-color: rgba(248, 113, 113, 0.2);
+    }
+
+    50% {
+        border-color: rgba(248, 113, 113, 0.5);
+        box-shadow: 0 0 15px rgba(248, 113, 113, 0.1);
+    }
+}
+
+.inv-item-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.inv-item-card-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.inv-item-card-id {
+    font-size: 0.6rem;
+    font-family: monospace;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.inv-item-card-status {
+    font-size: 0.55rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.inv-item-card-gauge {
+    position: relative;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    margin: 0.75rem 0;
+    overflow: hidden;
+}
+
+.inv-item-card-gauge-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+}
+
+.inv-item-card-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.inv-item-card-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.inv-item-card-detail-label {
+    font-size: 0.55rem;
+    color: rgba(255, 255, 255, 0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.inv-item-card-detail-value {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.inv-item-card-edit {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.inv-item-card-edit:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   5. COST HEATMAP
+   ═══════════════════════════════════════════════════════════════ */
+.heatmap-container {
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+}
+
+.heatmap-cell {
+    aspect-ratio: 1;
+    border-radius: 3px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: default;
+    position: relative;
+    min-height: 14px;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.5);
+    z-index: 10;
+}
+
+.heatmap-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.6rem;
+    color: #fff;
+    white-space: nowrap;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.heatmap-cell:hover .heatmap-tooltip {
+    display: block;
+}
+
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    justify-content: flex-end;
+}
+
+.heatmap-legend-label {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.heatmap-legend-cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.heatmap-day-labels {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    margin-bottom: 4px;
+}
+
+.heatmap-day-label {
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   6. RESTOCK ALERT PANEL
+   ═══════════════════════════════════════════════════════════════ */
+.restock-panel {
+    padding: 1.25rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.restock-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.restock-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+.restock-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateX(4px);
+}
+
+.restock-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    animation: restockPulse 2s ease-in-out infinite;
+}
+
+@keyframes restockPulse {
+
+    0%,
+    100% {
+        opacity: 0.8;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+.restock-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.restock-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.restock-detail {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.restock-status-badge {
+    font-size: 0.55rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 10px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.restock-empty {
+    text-align: center;
+    padding: 2rem;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.8rem;
+}

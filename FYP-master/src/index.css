@@ -1,0 +1,720 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 200 100% 96%;
+    --foreground: 210 50% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 50% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 50% 10%;
+
+    --primary: 195 90% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 185 60% 92%;
+    --secondary-foreground: 210 50% 10%;
+
+    --muted: 185 30% 95%;
+    --muted-foreground: 210 20% 50%;
+
+    --accent: 180 95% 55%;
+    --accent-foreground: 210 50% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 185 30% 88%;
+    --input: 185 30% 88%;
+    --ring: 195 85% 45%;
+
+    --radius: 1rem;
+
+    --water-deep: 200 85% 35%;
+    --water-medium: 195 85% 45%;
+    --water-light: 185 90% 60%;
+    --water-bright: 180 95% 55%;
+
+    --gradient-water: linear-gradient(135deg, hsl(195 90% 50%), hsl(180 95% 60%));
+    --gradient-flow: linear-gradient(135deg,
+        hsl(210 80% 60%) 0%,
+        hsl(208 75% 56%) 25%,
+        hsl(206 70% 52%) 50%,
+        hsl(204 65% 48%) 75%,
+        hsl(202 60% 45%) 100%);
+    --gradient-sky: radial-gradient(ellipse at top, hsl(195 100% 85%), hsl(200 100% 92%));
+
+    --shadow-glow: 0 8px 32px hsla(195, 85%, 45%, 0.25);
+    --shadow-prominent: 0 0 30px hsla(195, 90%, 50%, 0.4), inset 0 0 20px hsla(195, 90%, 70%, 0.3);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 210 50% 8%;
+    --foreground: 210 100% 97%;
+
+    --card: 210 45% 12%;
+    --card-foreground: 210 100% 97%;
+
+    --popover: 210 45% 12%;
+    --popover-foreground: 210 100% 97%;
+
+    --primary: 180 95% 55%;
+    --primary-foreground: 210 50% 10%;
+
+    --secondary: 210 40% 18%;
+    --secondary-foreground: 210 100% 97%;
+
+    --muted: 210 40% 15%;
+    --muted-foreground: 210 20% 65%;
+
+    --accent: 195 85% 45%;
+    --accent-foreground: 210 100% 97%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 40% 20%;
+    --input: 210 40% 20%;
+    --ring: 180 95% 55%;
+
+    --water-deep: 200 85% 35%;
+    --water-medium: 195 85% 45%;
+    --water-light: 185 90% 60%;
+    --water-bright: 180 95% 55%;
+
+    --gradient-water: linear-gradient(135deg, hsl(195 85% 45%), hsl(180 95% 55%));
+    --gradient-flow: linear-gradient(135deg,
+        hsl(210 50% 12%) 0%,
+        hsl(210 45% 16%) 50%,
+        hsl(200 50% 20%) 100%);
+    --gradient-sky: radial-gradient(ellipse at top, hsl(200 45% 15%), hsl(210 50% 10%));
+
+    --shadow-glow: 0 8px 32px hsla(180, 95%, 55%, 0.3);
+    --shadow-prominent: 0 0 30px hsla(180, 95%, 55%, 0.5), inset 0 0 20px hsla(180, 95%, 70%, 0.2);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3D WATER QUALITY ORB — CSS ANIMATIONS
+   ═══════════════════════════════════════════════════════════ */
+
+.orb-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ── Ambient background glow ── */
+.orb-ambient {
+  position: absolute;
+  inset: -40px;
+  border-radius: 50%;
+  animation: orbAmbientPulse 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes orbAmbientPulse {
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+/* ── Ripple rings ── */
+.orb-ripple {
+  position: absolute;
+  border: 1.5px solid;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.orb-ripple-1 {
+  width: 200px;
+  height: 200px;
+  animation: orbRipple 3s ease-out infinite;
+}
+
+.orb-ripple-2 {
+  width: 200px;
+  height: 200px;
+  animation: orbRipple 3s ease-out 1s infinite;
+}
+
+.orb-ripple-3 {
+  width: 200px;
+  height: 200px;
+  animation: orbRipple 3s ease-out 2s infinite;
+}
+
+@keyframes orbRipple {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* ── Main orb sphere wrapper ── */
+.orb-sphere {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  animation: orbFloat 6s ease-in-out infinite;
+  z-index: 10;
+}
+
+@keyframes orbFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ── Outer glow ── */
+.orb-glow-outer {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  animation: orbGlowPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes orbGlowPulse {
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+/* ── Sphere body ── */
+.orb-body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  transition: background 1.5s ease, box-shadow 1.5s ease;
+}
+
+/* ── Specular highlight (top-left shine) ── */
+.orb-highlight {
+  position: absolute;
+  top: 12%;
+  left: 18%;
+  width: 45%;
+  height: 35%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 40% 40%,
+      rgba(255, 255, 255, 0.45) 0%,
+      rgba(255, 255, 255, 0.15) 40%,
+      transparent 70%);
+  transform: rotate(-25deg);
+  pointer-events: none;
+  animation: orbHighlightShimmer 4s ease-in-out infinite;
+}
+
+@keyframes orbHighlightShimmer {
+
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: rotate(-25deg) scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: rotate(-25deg) scale(1.05);
+  }
+}
+
+/* ── Water surface inside orb ── */
+.orb-water-surface {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: orbWaterWave 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes orbWaterWave {
+
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+
+  25% {
+    transform: translateY(-3px) scaleY(0.97);
+  }
+
+  50% {
+    transform: translateY(3px) scaleY(1.03);
+  }
+
+  75% {
+    transform: translateY(-2px) scaleY(0.98);
+  }
+}
+
+/* ── Bubbles inside the orb ── */
+.orb-bubble {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.orb-bubble-1 {
+  width: 8px;
+  height: 8px;
+  bottom: 30%;
+  left: 35%;
+  animation: orbBubbleRise 4s ease-in-out infinite;
+}
+
+.orb-bubble-2 {
+  width: 5px;
+  height: 5px;
+  bottom: 25%;
+  left: 55%;
+  animation: orbBubbleRise 5s ease-in-out 0.8s infinite;
+}
+
+.orb-bubble-3 {
+  width: 10px;
+  height: 10px;
+  bottom: 35%;
+  left: 45%;
+  animation: orbBubbleRise 6s ease-in-out 1.5s infinite;
+}
+
+.orb-bubble-4 {
+  width: 4px;
+  height: 4px;
+  bottom: 28%;
+  left: 62%;
+  animation: orbBubbleRise 3.5s ease-in-out 2s infinite;
+}
+
+.orb-bubble-5 {
+  width: 6px;
+  height: 6px;
+  bottom: 32%;
+  left: 30%;
+  animation: orbBubbleRise 4.5s ease-in-out 0.5s infinite;
+}
+
+@keyframes orbBubbleRise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: translateY(-40px) scale(0.8);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: translateY(-80px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* ── Center status label ── */
+.orb-center-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.orb-status-text {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+  animation: orbStatusPulse 3s ease-in-out infinite;
+}
+
+@keyframes orbStatusPulse {
+
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ── Floating metric labels ── */
+.orb-metric {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.orb-metric-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.orb-metric-inner:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.orb-metric-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.orb-metric-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.orb-metric-unit {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+  margin-left: 2px;
+}
+
+/* ── Metric connector lines ── */
+.orb-metric-line {
+  height: 1px;
+  pointer-events: none;
+}
+
+/* ── Metric positioning + parallax ── */
+.orb-metric-ph {
+  top: 10%;
+  left: 5%;
+  animation: orbMetricFloat1 7s ease-in-out infinite;
+}
+
+.orb-metric-chlorine {
+  top: 10%;
+  right: 5%;
+  text-align: right;
+  animation: orbMetricFloat2 8s ease-in-out infinite;
+}
+
+.orb-metric-chlorine .orb-metric-inner {
+  align-items: flex-end;
+}
+
+.orb-metric-temp {
+  bottom: 15%;
+  left: 5%;
+  animation: orbMetricFloat3 6s ease-in-out infinite;
+}
+
+.orb-metric-level {
+  bottom: 15%;
+  right: 5%;
+  text-align: right;
+  animation: orbMetricFloat4 7.5s ease-in-out infinite;
+}
+
+.orb-metric-level .orb-metric-inner {
+  align-items: flex-end;
+}
+
+/* Connector line widths */
+.orb-metric-line-ph {
+  width: 40px;
+  margin-top: 4px;
+}
+
+.orb-metric-line-chlorine {
+  width: 40px;
+  margin-top: 4px;
+  margin-left: auto;
+}
+
+.orb-metric-line-temp {
+  width: 40px;
+  margin-bottom: 4px;
+}
+
+.orb-metric-line-level {
+  width: 40px;
+  margin-bottom: 4px;
+  margin-left: auto;
+}
+
+/* Parallax floating animations */
+@keyframes orbMetricFloat1 {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  33% {
+    transform: translate(4px, -6px);
+  }
+
+  66% {
+    transform: translate(-3px, 4px);
+  }
+}
+
+@keyframes orbMetricFloat2 {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  33% {
+    transform: translate(-5px, -4px);
+  }
+
+  66% {
+    transform: translate(3px, 6px);
+  }
+}
+
+@keyframes orbMetricFloat3 {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  33% {
+    transform: translate(5px, 5px);
+  }
+
+  66% {
+    transform: translate(-4px, -3px);
+  }
+}
+
+@keyframes orbMetricFloat4 {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  33% {
+    transform: translate(-4px, 4px);
+  }
+
+  66% {
+    transform: translate(5px, -5px);
+  }
+}
+
+/* ── Orb reflection ── */
+.orb-reflection {
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 30px;
+  border-radius: 50%;
+  filter: blur(10px);
+  opacity: 0.5;
+  animation: orbReflectionPulse 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@keyframes orbReflectionPulse {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateX(-50%) scaleX(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: translateX(-50%) scaleX(1.15);
+  }
+}
+
+/* ── Clean state animation ── */
+.orb-clean .orb-body {
+  animation: orbCleanBreath 4s ease-in-out infinite;
+}
+
+@keyframes orbCleanBreath {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+/* ── Warning state animation ── */
+.orb-warning .orb-body {
+  animation: orbWarningPulse 2s ease-in-out infinite;
+}
+
+@keyframes orbWarningPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+
+  50% {
+    transform: scale(1.03);
+    filter: brightness(1.1);
+  }
+}
+
+/* ── Dirty state animation ── */
+.orb-dirty .orb-body {
+  animation: orbDirtyThrob 1.5s ease-in-out infinite;
+}
+
+@keyframes orbDirtyThrob {
+
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+
+  25% {
+    transform: scale(1.04);
+    filter: brightness(1.15);
+  }
+
+  50% {
+    transform: scale(0.98);
+    filter: brightness(0.95);
+  }
+
+  75% {
+    transform: scale(1.02);
+    filter: brightness(1.05);
+  }
+}
+
+/* ── Unknown state ── */
+.orb-unknown .orb-body {
+  animation: orbCleanBreath 5s ease-in-out infinite;
+}
