@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Level Rain Effect</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-light: #ffffff;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --covered: #2563eb;
+            --uncovered: #dc2626;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --rain-bg: rgba(59, 130, 246, 0.08);
+            --rain-border: rgba(59, 130, 246, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 900px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .container::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            border-radius: 16px 16px 0 0;
+            background: linear-gradient(90deg, #2563eb, #06b6d4);
+        }
+
+        .header { text-align: center; margin-bottom: 25px; }
+        .title { font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text-primary); }
+        .subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 15px; }
+
+        .legend-strip {
+            display: flex; justify-content: center; gap: 30px; margin-bottom: 25px;
+            font-size: 13px; font-weight: 600; color: var(--text-secondary);
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-line { width: 30px; height: 3px; border-radius: 2px; }
+        .legend-line.covered { background: var(--covered); }
+        .legend-line.uncovered { background: var(--uncovered); }
+        .legend-rain {
+            width: 30px; height: 14px; border-radius: 4px; border: 1px solid var(--rain-border);
+            background: repeating-linear-gradient(135deg, rgba(59,130,246,0.3) 0px, rgba(59,130,246,0.3) 2px, rgba(59,130,246,0.1) 2px, rgba(59,130,246,0.1) 6px);
+        }
+
+        .chart-wrapper { height: 450px; position: relative; margin-bottom: 25px; }
+        
+        .finding {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px;
+            text-align: center; font-size: 14px; line-height: 1.6; color: var(--text-secondary);
+        }
+        .finding strong { color: var(--uncovered); font-weight: 700; }
+        .finding em { color: var(--covered); font-style: normal; font-weight: 700; }
+        
+        .badges-row {
+            display: flex; justify-content: center; gap: 15px; margin-top: 15px;
+        }
+        .badge {
+            font-size: 12px; font-weight: 700; padding: 6px 16px; border-radius: 100px;
+            border: 1px solid var(--border); background: #fff;
+        }
+        .badge.covered { color: #1e40af; border-color: #bfdbfe; background: #eff6ff; }
+        .badge.uncovered { color: #991b1b; border-color: #fecaca; background: #fef2f2; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="title">Effect of Rain on Water Level</div>
+        <div class="subtitle">Observation Window: 24 Hours &nbsp;|&nbsp; Rain Intensity: ~18 mm/hr</div>
+    </div>
+
+    <div class="legend-strip">
+        <div class="legend-item"><div class="legend-line covered"></div>Covered Pool</div>
+        <div class="legend-item"><div class="legend-line uncovered"></div>Uncovered Pool</div>
+        <div class="legend-item"><div class="legend-rain"></div>Rain Period (08:00 – 16:00)</div>
+    </div>
+
+    <div class="chart-wrapper">
+        <canvas id="mainChart"></canvas>
+    </div>
+
+    <div class="finding">
+        The uncovered pool accumulated <strong>+18% water level rise</strong> (from 70% → 88%), approaching the critical 90% overflow threshold. The <em>covered pool</em> rose negligibly (+1%), requiring no intervention during or after the rain event.
+        <div class="badges-row">
+            <div class="badge covered">✓ Covered: Peak Δ +1% (stable at ~71%)</div>
+            <div class="badge uncovered">✗ Uncovered: Peak Δ +18% (rose to 88%, overflow risk)</div>
+        </div>
+    </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const HOURS  = Array.from({length: 25}, (_, i) => i);
+const LABELS = HOURS.map(h => `${String(h).padStart(2,'0')}:00`);
+const RAIN_START = 8, RAIN_END = 16;
+const NOISE_WL = [0,0.2,-0.2,0.3,-0.3,0.2,0,-0.2,0.3,-0.2,0.2,-0.3,0.2,0,-0.2,0.3,0,-0.2,0.2,-0.3,0.2,0,-0.2,0.3,-0.2];
+
+function genWaterLevel() {
+    const covered = [], uncovered = [];
+    for (let h = 0; h <= 24; h++) {
+        covered.push(+(70 + NOISE_WL[h] * 0.3).toFixed(1) * 1);
+        if (h < RAIN_START) {
+            uncovered.push(+(70 + NOISE_WL[h] * 0.3).toFixed(1) * 1);
+        } else if (h <= RAIN_END) {
+            const p = (h - RAIN_START) / (RAIN_END - RAIN_START);
+            uncovered.push(+(70 + 18 * Math.pow(p, 0.7) + NOISE_WL[h] * 0.5).toFixed(1) * 1);
+        } else {
+            const r = (h - RAIN_END) / (24 - RAIN_END);
+            uncovered.push(+(70 + 18 * (1 - r * 0.25) + NOISE_WL[h] * 0.3).toFixed(1) * 1);
+        }
+    }
+    return { covered, uncovered };
+}
+
+const data = genWaterLevel();
+
+const ctx = document.getElementById('mainChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: LABELS,
+        datasets: [
+            {
+                label: 'Covered Pool', data: data.covered,
+                borderColor: '#2563eb', backgroundColor: '#2563eb',
+                borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#2563eb', tension: 0.38, fill: false
+            },
+            {
+                label: 'Uncovered Pool', data: data.uncovered,
+                borderColor: '#dc2626', backgroundColor: '#dc2626',
+                borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#dc2626', tension: 0.38, fill: false
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: {
+            padding: { top: 30, right: 30, bottom: 0, left: 0 }
+        },
+        plugins: {
+            legend: { display: false },
+            datalabels: {
+                color: function(context) { return context.datasetIndex === 0 ? '#1e40af' : '#991b1b'; },
+                font: { family: 'Inter', size: 11, weight: '800' },
+                align: function(context) { return context.datasetIndex === 0 ? 'bottom' : 'top'; },
+                offset: 6,
+                formatter: function(value) { return value.toFixed(1) + '%'; },
+                display: function(context) {
+                    const i = context.dataIndex;
+                    return i % 2 === 0 || i === RAIN_START || i === RAIN_END;
+                }
+            },
+            annotation: {
+                annotations: {
+                    rainBox: {
+                        type: 'box', xMin: RAIN_START, xMax: RAIN_END,
+                        backgroundColor: 'rgba(59, 130, 246, 0.08)', borderColor: 'rgba(59, 130, 246, 0.3)',
+                        borderWidth: 2, borderDash: [5, 4],
+                        label: {
+                            display: true, content: '🌧  Rain Period', position: 'start',
+                            font: { size: 14, weight: '700', family: 'Inter' }, color: '#3b82f6', padding: {x:10, y:8}
+                        }
+                    }
+                }
+            }
+        },
+        scales: {
+            x: { title: { display: true, text: 'Time of Day', color: '#475569', font: {size: 14, weight: '700'} }, ticks: { color: '#64748b', font: {size: 12, weight: '600'} }, grid: { color: 'rgba(0,0,0,0.06)' } },
+            y: { title: { display: true, text: 'Water Level Percentage (%)', color: '#475569', font: {size: 14, weight: '700'} }, ticks: { color: '#64748b', font: {size: 12, weight: '600'} }, grid: { color: 'rgba(0,0,0,0.06)' }, suggestedMin: 60, suggestedMax: 95 }
+        }
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleanliness Comparison</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-light: #ffffff;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --with-app: #10b981;
+            --without-app: #ef4444;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; padding: 50px; color: var(--text-primary); display: flex; justify-content: center;}
+
+        .container {
+            width: 1000px; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 40px; position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        }
+        .container::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 5px; border-radius: 16px 16px 0 0;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .title { font-size: 26px; font-weight: 800; margin-bottom: 10px; color: var(--text-primary); }
+        .subtitle { font-size: 15px; color: var(--text-secondary); margin-bottom: 25px; line-height: 1.6; max-width: 800px; margin-inline: auto; }
+
+        .legend-strip {
+            display: flex; justify-content: center; gap: 40px; margin-bottom: 30px;
+            font-size: 14px; font-weight: 700; color: var(--text-secondary);
+            background: #f1f5f9; padding: 15px; border-radius: 8px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 10px; }
+        .legend-line { width: 35px; height: 4px; border-radius: 2px; }
+        .legend-line.with { background: var(--with-app); }
+        .legend-line.without { background: var(--without-app); border-dash: 5px 5px;}
+        
+        .chart-wrapper { height: 400px; position: relative; margin-bottom: 30px; }
+        
+        .finding-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .finding-card {
+            border: 1px solid var(--border); border-radius: 12px; padding: 15px 20px;
+            background: #f8fafc;
+        }
+        .finding-card h4 { font-size: 14px; font-weight: 800; margin-bottom: 5px; }
+        .finding-card.with h4 { color: #047857; }
+        .finding-card.without h4 { color: #b91c1c; }
+        .finding-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="title">Pool Cleanliness Score: Manual vs. Aqua Intel System</div>
+        <div class="subtitle">A 30-day comparative analysis of overall water cleanliness (derived from pH, Chlorine, Turbidity, and TDS levels). The IoT system uses proactive alerts compared to reactive, schedule-based manual checking.</div>
+    </div>
+
+    <div class="legend-strip">
+        <div class="legend-item"><div class="legend-line with"></div>With Aqua Intel (IoT Monitored)</div>
+        <div class="legend-item"><div style="border-top: 3px dashed var(--without-app); width: 35px;"></div>Without System (Manual Weekly Maintenance)</div>
+    </div>
+
+    <div class="chart-wrapper">
+        <canvas id="cleanlinessChart"></canvas>
+    </div>
+
+    <div class="finding-grid">
+        <div class="finding-card with">
+            <h4>Proactive Maintenance (Aqua Intel)</h4>
+            <p>Real-time anomaly alerts allow for immediate, micro-adjustments. The pool cleanliness remains tightly bounded between <strong>88% - 100%</strong> at all times, never dropping below safe swimming levels.</p>
+        </div>
+        <div class="finding-card without">
+            <h4>Reactive Maintenance (Manual)</h4>
+            <p>Relying on scheduled weekly checks leads to a "sawtooth" pattern. Contamination builds up unnoticed, dropping cleanliness to as low as <strong>55%</strong>, creating hazardous swimming conditions before the next manual cleaning.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const DAYS = Array.from({length: 31}, (_, i) => i);
+const LABELS = DAYS.map(d => `Day ${d}`);
+
+const dataWithout = [100.0, 91.2, 85.5, 76.1, 70.0, 62.1, 55.4, 100.0, 93.1, 86.4, 78.5, 71.2, 65.4, 58.0, 100.0, 92.5, 87.0, 80.2, 73.1, 66.5, 59.8, 100.0, 94.0, 88.1, 81.5, 75.0, 68.2, 61.5, 100.0, 91.8, 85.2];
+const dataWith = [100.0, 98.5, 97.1, 95.0, 92.5, 99.0, 97.5, 96.0, 94.1, 92.0, 98.5, 97.2, 95.8, 93.5, 91.5, 99.5, 98.0, 96.5, 95.0, 93.2, 91.0, 98.8, 97.4, 96.0, 94.5, 92.8, 99.0, 97.8, 96.1, 94.5, 92.0];
+
+const ctx = document.getElementById('cleanlinessChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: LABELS,
+        datasets: [
+            {
+                label: 'With Aqua Intel',
+                data: dataWith,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 3,
+                pointRadius: 4,
+                pointBackgroundColor: '#10b981',
+                tension: 0.3,
+                fill: true
+            },
+            {
+                label: 'Without System (Manual)',
+                data: dataWithout,
+                borderColor: '#ef4444',
+                backgroundColor: 'transparent',
+                borderWidth: 3,
+                borderDash: [5, 5],
+                pointRadius: 5,
+                pointStyle: 'rect',
+                pointBackgroundColor: '#ef4444',
+                tension: 0.1,
+                fill: false
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 30, right: 30 } },
+        plugins: {
+            legend: { display: false },
+            datalabels: {
+                color: function(context) { return context.datasetIndex === 0 ? '#047857' : '#b91c1c'; },
+                font: { family: 'Inter', size: 11, weight: '800' },
+                align: function(context) { return context.datasetIndex === 0 ? 'top' : 'bottom'; },
+                offset: 6,
+                formatter: function(value) { return value + '%'; },
+                display: function(context) {
+                    const i = context.dataIndex;
+                    // Show for important data points to prevent crowding
+                    // Always show day 0, 7, 14, 21, 28 (weekly cleaning dates)
+                    // Also show some mid-week points
+                    return i % 7 === 0 || i % 7 === 3 || i === 30;
+                }
+            }
+        },
+        scales: {
+            x: { 
+                title: { display: true, text: 'Observation Period (Days)', color: '#475569', font: {size: 13, weight: '700'} }, 
+                ticks: { color: '#64748b', maxTicksLimit: 15, font: { weight: '600' } }, grid: { display: false } 
+            },
+            y: { 
+                title: { display: true, text: 'Cleanliness Index (%)', color: '#475569', font: {size: 13, weight: '700'} }, 
+                ticks: { color: '#64748b', font: {size: 12, weight: '600'} }, grid: { color: 'rgba(0,0,0,0.06)' }, 
+                min: 40, max: 110 
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>

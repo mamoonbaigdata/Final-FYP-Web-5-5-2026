@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seasonal Water Change Frequency</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-light: #ffffff;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --with-app: #10b981;
+            --without-app: #ef4444;
+            --bather-load: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; padding: 40px; color: var(--text-primary); display: flex; justify-content: center; }
+
+        .container {
+            width: 1000px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        }
+        .container::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 5px;
+            border-radius: 16px 16px 0 0;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+        }
+
+        .header { text-align: center; margin-bottom: 25px; }
+        .title { font-size: 26px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary); letter-spacing: -0.5px;}
+        .subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 25px; line-height: 1.6; max-width: 800px; margin-inline: auto; }
+
+        .legend-strip {
+            display: flex; justify-content: center; gap: 30px; margin-bottom: 30px;
+            font-size: 13px; font-weight: 700; color: var(--text-secondary);
+            background: #f1f5f9; padding: 16px; border-radius: 8px; flex-wrap: wrap;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-box { width: 16px; height: 16px; border-radius: 4px; }
+        .legend-line { width: 30px; height: 4px; border-radius: 2px; }
+
+        .chart-wrapper { height: 420px; position: relative; margin-bottom: 30px; }
+        
+        .finding-box {
+            border: 1px solid var(--border); border-radius: 12px; padding: 25px;
+            background: #f8fafc; text-align: center;
+        }
+        .finding-box h4 { font-size: 16px; font-weight: 800; margin-bottom: 10px; color: var(--text-primary); }
+        .finding-box p { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+        .finding-box strong { color: var(--without-app); font-weight: 700; }
+        .finding-box em { color: var(--with-app); font-style: normal; font-weight: 700; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="title">Seasonal Water Replacement Frequency vs. Bather Load</div>
+        <div class="subtitle">Illustrating how human usage (bather load) directly correlates with the necessity to completely drain and replace pool water. The Aqua Intel system severely cuts this requirement by optimizing chemistry before the water spoils.</div>
+    </div>
+
+    <div class="legend-strip">
+        <div class="legend-item"><div class="legend-box" style="background:var(--with-app)"></div>Aqua Intel IoT (Micro-dosing)</div>
+        <div class="legend-item"><div class="legend-box" style="background:var(--without-app)"></div>Manual Reactive Care</div>
+        <div class="legend-item"><div class="legend-line" style="background:var(--bather-load)"></div>Average Daily Bather Load (Users)</div>
+    </div>
+
+    <div class="chart-wrapper">
+        <canvas id="waterChart"></canvas>
+    </div>
+
+    <div class="finding-box">
+        <h4>Impact of Summer Bather Load on Total Dissolved Solids (TDS)</h4>
+        <p>During the Summer, the daily human bather load skyrockets. This immense introduction of sweat, oils, and bacteria causes Total Dissolved Solids (TDS) to cross toxic thresholds rapidly. In a manually monitored pool, water becomes unsalvageable and requires <strong>nearly 5 complete drain-and-refill events</strong>. Conversely, the <em>Aqua Intel System</em> mitigates this via continuous proactive adjustments, needing only <em>1 partial water swap</em> during peak season.</p>
+    </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const SEASONS = ['Winter', 'Spring', 'Summer', 'Autumn'];
+
+// Data
+// Summer has extremely high usage. Winter has very low.
+const batherLoad = [2, 15, 65, 20]; // Average daily users
+
+// Manual Pool needs water replaced more often when bather load is high (TDS accumulation)
+const drainWithout = [0.5, 2.0, 5.0, 2.5]; // Number of times drained/replaced
+
+// Aqua Intel pool stays balanced, minimizing massive chemical/TDS spikes
+const drainWith = [0, 0.5, 1.0, 0.5];
+
+const ctx = document.getElementById('waterChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: SEASONS,
+        datasets: [
+            {
+                type: 'line',
+                label: 'Avg Daily Bather Load (Users)',
+                data: batherLoad,
+                yAxisID: 'yBather',
+                borderColor: '#3b82f6',
+                backgroundColor: '#3b82f6',
+                borderWidth: 4,
+                pointRadius: 6,
+                tension: 0.3,
+                order: 1
+            },
+            {
+                type: 'bar',
+                label: 'Aqua Intel (Drain Events)',
+                data: drainWith,
+                yAxisID: 'yDrain',
+                backgroundColor: '#10b981',
+                borderRadius: 4,
+                order: 2
+            },
+            {
+                type: 'bar',
+                label: 'Manual (Drain Events)',
+                data: drainWithout,
+                yAxisID: 'yDrain',
+                backgroundColor: '#ef4444',
+                borderRadius: 4,
+                order: 3
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 30 } },
+        plugins: {
+            legend: { display: false },
+            datalabels: {
+                font: { family: 'Inter', size: 12, weight: '800' },
+                formatter: function(value, context) {
+                    if (context.datasetIndex === 0) return value + ' Users';
+                    return value + 'x';
+                },
+                color: function(context) { 
+                    if (context.datasetIndex === 0) return '#2563eb';
+                    return '#ffffff'; // White for bars
+                },
+                align: function(context) { 
+                    if (context.datasetIndex === 0) return 'bottom';
+                    return 'center'; 
+                },
+                anchor: function(context) {
+                    if (context.datasetIndex === 0) return 'bottom';
+                    return 'center'; 
+                },
+                offset: 8
+            }
+        },
+        scales: {
+            x: { 
+                grid: { display: false }, 
+                ticks: { font: { family: 'Inter', weight: '700', size: 14 }, color: '#475569' } 
+            },
+            yDrain: { 
+                type: 'linear', position: 'left',
+                title: { display: true, text: 'Drain & Refill Events (per Season)', color: '#475569', font: {weight: '700'} },
+                ticks: { color: '#64748b', font: {weight:'600'} }, grid: { color: 'rgba(0,0,0,0.06)' }, beginAtZero: true, suggestedMax: 6
+            },
+            yBather: { 
+                type: 'linear', position: 'right',
+                title: { display: true, text: 'Avg. Daily Bather Load (Users)', color: '#3b82f6', font: {weight: '700'} },
+                ticks: { color: '#3b82f6', font: {weight:'600'} }, grid: { display: false }, beginAtZero: true, suggestedMax: 80
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>

@@ -358,13 +358,14 @@ const Analysis = () => {
 
   /* ─── CSV Download ─── */
   const downloadCsv = () => {
-    const header = ["Date", "Avg pH", "Avg Chlorine (mg/L)", "Avg Temp (°C)", "Predicted Cleanliness"];
+    const header = ["Date", "Avg pH", "Avg Chlorine (mg/L)", "Avg Temp (°C)", "Avg Water Level (cm)", "Predicted Cleanliness"];
     const rows = last30.map((d) => {
       const avgP = avg(d.pH);
       const avgC = avg(d.chlorine);
       const avgT = avg(d.temp);
+      const avgL = avg(d.level);
       const prediction = predictKNN(avgP, avgC, avgT);
-      return [d.date, avgP.toFixed(2), avgC.toFixed(2), avgT.toFixed(2), prediction];
+      return [d.date, avgP.toFixed(2), avgC.toFixed(2), avgT.toFixed(2), Number.isFinite(avgL) ? avgL.toFixed(2) : "—", prediction];
     });
     const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });

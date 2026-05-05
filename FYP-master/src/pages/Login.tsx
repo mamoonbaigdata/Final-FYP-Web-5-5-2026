@@ -42,47 +42,28 @@ const Login = () => {
       // Speak welcome greeting + pool condition report
       if ("speechSynthesis" in window) {
         // 1. Welcome
-        const welcome = new SpeechSynthesisUtterance("Hello! Welcome to Aqua Intel.");
+        const welcome = new SpeechSynthesisUtterance("Welcome to AquaIntel.");
         welcome.rate = 0.95;
         welcome.pitch = 1.05;
         welcome.volume = 1;
         window.speechSynthesis.speak(welcome);
 
-        // 2. Build pool condition report from live data
+        // 2. Build pool condition report from live data (values only, no ranges)
         const { pH, chlorine, waterTemperature, waterLevel } = poolData;
 
         const issues: string[] = [];
-        // pH analysis (target 7.4 – 7.6)
-        if (pH < 7.4) issues.push(`pH is low at ${pH.toFixed(1)}, below the target range`);
-        else if (pH > 7.6) issues.push(`pH is high at ${pH.toFixed(1)}, above the target range`);
+        if (pH < 7.4) issues.push("pH is low");
+        else if (pH > 7.6) issues.push("pH is high");
+        if (chlorine < 1.5) issues.push("Chlorine is low");
+        else if (chlorine > 2.0) issues.push("Chlorine is high");
+        if (waterTemperature < 26) issues.push("Temperature is low");
+        else if (waterTemperature > 28) issues.push("Temperature is high");
+        if (waterLevel < 80) issues.push("Water level is low");
+        else if (waterLevel > 95) issues.push("Water level is high");
 
-        // Chlorine analysis (target 1.5 – 2.0 ppm)
-        if (chlorine < 1.5) issues.push(`Chlorine is low at ${chlorine.toFixed(1)} ppm, below the target range`);
-        else if (chlorine > 2.0) issues.push(`Chlorine is high at ${chlorine.toFixed(1)} ppm, above the target range`);
+        const overallCondition = issues.length === 0 ? "excellent" : issues.length <= 2 ? "needs attention" : "critical";
 
-        // Temperature analysis (target 26 – 28 °C)
-        if (waterTemperature < 26) issues.push(`Water temperature is cold at ${waterTemperature.toFixed(1)} degrees, below the target range`);
-        else if (waterTemperature > 28) issues.push(`Water temperature is warm at ${waterTemperature.toFixed(1)} degrees, above the target range`);
-
-        // Water Level analysis (target 80 – 95 cm)
-        if (waterLevel < 80) issues.push(`Water level is low at ${waterLevel.toFixed(0)} centimeters, below the target range`);
-        else if (waterLevel > 95) issues.push(`Water level is high at ${waterLevel.toFixed(0)} centimeters, above the target range`);
-
-        // Always speak pH & Chlorine explicitly
-        const pHStatus = pH >= 7.4 && pH <= 7.6 ? "normal" : pH < 7.4 ? "low" : "high";
-        const clStatus = chlorine >= 1.5 && chlorine <= 2.0 ? "normal" : chlorine < 1.5 ? "low" : "high";
-
-        const pHDetail = `pH level is ${pH.toFixed(1)}, which is ${pHStatus}. The target range is 7.4 to 7.6.`;
-        const clDetail = `Chlorine level is ${chlorine.toFixed(1)} ppm, which is ${clStatus}. The target range is 1.5 to 2.0 ppm.`;
-
-        let conditionText: string;
-        if (issues.length === 0) {
-          conditionText = `Here is your pool status report. Overall pool condition is excellent. ${pHDetail} ${clDetail} Temperature is ${waterTemperature.toFixed(1)} degrees celsius, target is 26 to 28 degrees. Water level is ${waterLevel.toFixed(0)} centimeters, target is 80 to 95 centimeters. All parameters are within target range. Have a great day!`;
-        } else if (issues.length <= 2) {
-          conditionText = `Here is your pool status report. Overall pool condition needs attention. ${pHDetail} ${clDetail} Temperature is ${waterTemperature.toFixed(1)} degrees celsius, target is 26 to 28 degrees. Water level is ${waterLevel.toFixed(0)} centimeters, target is 80 to 95 centimeters. ${issues.join(". Also, ")}. Please check the dashboard for details.`;
-        } else {
-          conditionText = `Here is your pool status report. Overall pool condition is critical with ${issues.length} parameters out of range. ${pHDetail} ${clDetail} Temperature is ${waterTemperature.toFixed(1)} degrees celsius, target is 26 to 28 degrees. Water level is ${waterLevel.toFixed(0)} centimeters, target is 80 to 95 centimeters. Immediate attention is recommended.`;
-        }
+        const conditionText = `Here is your pool status. Overall condition is ${overallCondition}. pH is ${pH.toFixed(1)}. Chlorine is ${chlorine.toFixed(1)} ppm. Temperature is ${waterTemperature.toFixed(1)} degrees celsius. Water level is ${waterLevel.toFixed(0)} centimeters.${issues.length > 0 ? ` Please check the dashboard for details.` : ` Have a great day!`}`;
 
         const report = new SpeechSynthesisUtterance(conditionText);
         report.rate = 0.93;

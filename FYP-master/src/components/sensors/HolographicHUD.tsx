@@ -35,7 +35,7 @@ const HolographicHUD = ({ temperature, pH, chlorine, waterLevel, overallStatus }
         { label: "TEMP", value: temperature, fmt: temperature !== null ? `${temperature.toFixed(1)}°` : "—", ...statusFor(temperature, 26, 30), icon: <Thermometer size={16} />, angle: -60 },
         { label: "PH", value: pH, fmt: pH !== null ? pH.toFixed(2) : "—", ...statusFor(pH, 7.2, 7.6), icon: <Droplets size={16} />, angle: 0 },
         { label: "CL₂", value: chlorine, fmt: chlorine !== null ? `${chlorine.toFixed(1)}` : "—", ...statusFor(chlorine, 1, 3), icon: <Beaker size={16} />, angle: 60 },
-        { label: "LEVEL", value: waterLevel, fmt: waterLevel !== null ? `${waterLevel.toFixed(0)}%` : "—", ...statusFor(waterLevel, 80, 95), icon: <Waves size={16} />, angle: 120 },
+        { label: "LEVEL", value: waterLevel, fmt: waterLevel !== null ? `${waterLevel.toFixed(0)}cm` : "—", ...statusFor(waterLevel, 80, 95), icon: <Waves size={16} />, angle: 120 },
     ];
 
     return (

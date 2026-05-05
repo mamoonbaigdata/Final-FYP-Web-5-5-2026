@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chlorine Level vs Time</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-light: #ffffff;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: var(--text-primary);
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 800px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .container::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            border-radius: 16px 16px 0 0;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .title { font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text-primary); }
+        .subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 15px; }
+
+        .chart-wrapper { 
+            height: 400px; 
+            position: relative; 
+            margin-bottom: 30px; 
+        }
+        
+        .finding {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 12px; padding: 20px;
+            font-size: 14px; line-height: 1.6; color: #991b1b;
+        }
+        .finding h4 {
+            margin-bottom: 8px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .finding ul {
+            padding-left: 20px;
+        }
+        .finding li {
+            margin-bottom: 4px;
+        }
+        .finding strong {
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="title">Chlorine Level vs Time</div>
+        <div class="subtitle">Daily Free Chlorine Depletion in Swimming Pool</div>
+    </div>
+
+    <div class="chart-wrapper">
+        <canvas id="lineChart"></canvas>
+    </div>
+
+    <div class="finding">
+        <h4>Interpretation</h4>
+        <ul>
+            <li>Chlorine levels decrease during peak hours.</li>
+            <li>Low chlorine (&lt;1.0 mg/L) leads to <strong>high contamination risk</strong>.</li>
+            <li><strong>Inverse relationship</strong> with risk level.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+const ctx = document.getElementById('lineChart').getContext('2d');
+
+const labels = ['08:00', '09:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00'];
+const dataPoints = [2.0, 1.9, 1.8, 1.5, 1.0, 0.8, 1.2, 1.6, 1.7, 1.9];
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Chlorine (mg/L)',
+            data: dataPoints,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 3,
+            pointBackgroundColor: '#2563eb',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                titleFont: { family: 'Inter', size: 14 },
+                bodyFont: { family: 'Inter', size: 14, weight: 'bold' },
+                padding: 12,
+                displayColors: false,
+                callbacks: {
+                    label: function(context) {
+                        return context.parsed.y + ' mg/L';
+                    }
+                }
+            },
+            annotation: {
+                annotations: {
+                    thresholdLine: {
+                        type: 'line',
+                        yMin: 1.0,
+                        yMax: 1.0,
+                        borderColor: '#ef4444',
+                        borderWidth: 2,
+                        borderDash: [6, 4],
+                        label: {
+                            display: true,
+                            content: 'Critical Low (<1.0 mg/L)',
+                            position: 'end',
+                            backgroundColor: 'rgba(239, 68, 68, 0.9)',
+                            color: 'white',
+                            font: { family: 'Inter', weight: 'bold', size: 12 },
+                            padding: { top: 4, bottom: 4, left: 8, right: 8 }
+                        }
+                    },
+                    riskZone: {
+                        type: 'box',
+                        yMin: 0,
+                        yMax: 1.0,
+                        backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                        borderWidth: 0
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                title: { display: true, text: 'Time (Hour)', font: { family: 'Inter', size: 14, weight: '600' }, color: '#475569', padding: { top: 10 } },
+                grid: { display: false }
+            },
+            y: {
+                title: { display: true, text: 'Chlorine Level (mg/L)', font: { family: 'Inter', size: 14, weight: '600' }, color: '#475569', padding: { bottom: 10 } },
+                min: 0,
+                max: 2.5,
+                grid: { color: '#f1f5f9' }
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>

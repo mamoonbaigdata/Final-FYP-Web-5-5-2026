@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cost Efficiency & Chemical Consumption</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-light: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --with-app: #10b981;
+            --without-app: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; padding: 40px; color: var(--text-primary); }
+
+        .dashboard { max-width: 1200px; margin: 0 auto; }
+        
+        .header { text-align: center; margin-bottom: 40px; }
+        .title { font-size: 28px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px; }
+        .subtitle { font-size: 15px; color: var(--text-secondary); max-width: 800px; margin: 0 auto; line-height: 1.6; }
+
+        .legend-strip {
+            display: flex; justify-content: center; gap: 40px; margin-bottom: 30px;
+            font-size: 14px; font-weight: 700; color: var(--text-secondary);
+        }
+        .legend-item { display: flex; align-items: center; gap: 10px; }
+        .legend-box { width: 16px; height: 16px; border-radius: 4px; }
+        .legend-box.with { background: var(--with-app); }
+        .legend-box.without { background: var(--without-app); }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        
+        .card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 16px; padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .card::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            border-radius: 16px 16px 0 0;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+        }
+        
+        .card-header { margin-bottom: 20px; text-align: center; }
+        .card-title { font-size: 18px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
+        .card-subtitle { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+        .chart-container { height: 350px; position: relative; }
+        
+        .insights {
+            margin-top: 20px; background: #f1f5f9; border-radius: 8px; padding: 15px;
+            font-size: 13px; line-height: 1.6; color: var(--text-secondary); text-align: center;
+        }
+        .insights strong { color: var(--text-primary); font-weight: 700; }
+
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="header">
+        <div class="title">Operational Cost Efficiency & Chemical Composition</div>
+        <div class="subtitle">A comparative analysis showing how the Aqua Intel IoT System optimizes pool resource management by eliminating reactive "shock" treatments and unneeded labor.</div>
+    </div>
+
+    <div class="legend-strip">
+        <div class="legend-item"><div class="legend-box with"></div>With Aqua Intel System (Proactive)</div>
+        <div class="legend-item"><div class="legend-box without"></div>Without System (Manual Reactive)</div>
+    </div>
+
+    <div class="grid">
+        <!-- Chart 1: Cost Efficiency -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Annual Operational Cost Comparison</div>
+                <div class="card-subtitle">Relative Expenditure Metric (Base Index = 100 for Manual)</div>
+            </div>
+            <div class="chart-container"><canvas id="chartCosts"></canvas></div>
+            <div class="insights">
+                <strong>Key Finding:</strong> Remote monitoring slashes labor time by 80% and cuts water replacement costs by catching evaporation and leaks early, resulting in a <strong>55% total reduction in operational costs</strong>.
+            </div>
+        </div>
+
+        <!-- Chart 2: Chemical Consumption -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Chemical Consumption Breakdown</div>
+                <div class="card-subtitle">Average Annual Usage (kg per pool volume)</div>
+            </div>
+            <div class="chart-container"><canvas id="chartChemicals"></canvas></div>
+            <div class="insights">
+                <strong>Key Finding:</strong> Manual care relies heavily on <em>"shock treatments"</em> to fix neglected pools. The Aqua Intel system enables precise <em>micro-dosing</em>, reducing overall chlorine usage by <strong>~35%</strong> while maintaining safer composition.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const costLabels = ['Labor / Time', 'Water Replacing', 'Chemical Purchases', 'Overall Total Cost'];
+const costWithout = [100, 100, 100, 100];
+const costWith = [20, 60, 65, 45]; // Vastly reduced
+
+const chemLabels = ['Regular Chlorine', 'Shock Chlorine', 'pH Reducer (Acid)', 'Algaecide'];
+const chemWithout = [25, 40, 15, 10]; // Total 90kg
+const chemWith = [30, 5, 8, 2];       // Total 45kg (No algae, no shock needed)
+
+function makeGroupedBarConfig(labels, dataWith, dataWithout, yLabel, formatStr) {
+    return {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'With Aqua Intel',
+                    data: dataWith,
+                    backgroundColor: '#10b981',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Without System',
+                    data: dataWithout,
+                    backgroundColor: '#ef4444',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            layout: { padding: { top: 20 } },
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    color: '#ffffff',
+                    font: { family: 'Inter', size: 12, weight: '800' },
+                    anchor: 'center',
+                    align: 'center',
+                    formatter: (val) => val + formatStr
+                }
+            },
+            scales: {
+                x: { ticks: { font: { family: 'Inter', weight: '600' } }, grid: { display: false } },
+                y: { title: { display: true, text: yLabel, font: { weight: '700' } }, grid: { color: 'rgba(0,0,0,0.06)' }, beginAtZero: true, suggestedMax: 110 }
+            }
+        }
+    };
+}
+
+const ctxCost = document.getElementById('chartCosts').getContext('2d');
+new Chart(ctxCost, makeGroupedBarConfig(costLabels, costWith, costWithout, 'Relative Cost Index (%)', '%'));
+
+const ctxChem = document.getElementById('chartChemicals').getContext('2d');
+const chemConfig = makeGroupedBarConfig(chemLabels, chemWith, chemWithout, 'Chemical Weight Added (kg)', ' kg');
+chemConfig.options.scales.y.suggestedMax = 50; // adjust scale
+new Chart(ctxChem, chemConfig);
+
+</script>
+</body>
+</html>

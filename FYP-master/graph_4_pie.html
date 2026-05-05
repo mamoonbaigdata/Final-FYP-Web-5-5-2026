@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Level Distribution</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-light: #ffffff;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: var(--text-primary);
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 700px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .container::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            border-radius: 16px 16px 0 0;
+            background: linear-gradient(90deg, #22c55e, #f59e0b, #ef4444);
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .title { font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text-primary); }
+        .subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 15px; }
+
+        .chart-wrapper { 
+            height: 400px; 
+            position: relative; 
+            margin-bottom: 30px; 
+            display: flex;
+            justify-content: center;
+        }
+        
+        .finding {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 12px; padding: 20px;
+            font-size: 14px; line-height: 1.6; color: #991b1b;
+        }
+        .finding h4 {
+            margin-bottom: 8px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .finding ul {
+            padding-left: 20px;
+        }
+        .finding li {
+            margin-bottom: 4px;
+        }
+        .finding strong {
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="title">Risk Level Distribution</div>
+        <div class="subtitle">Based on Sample Counts: Safe (6) | Moderate (2) | High (2)</div>
+    </div>
+
+    <div class="chart-wrapper">
+        <canvas id="pieChart"></canvas>
+    </div>
+
+    <div class="finding">
+        <h4>Interpretation</h4>
+        <ul>
+            <li>Significant portion of time falls into <strong>risk categories</strong> (40% Total Risk).</li>
+            <li>Demonstrates need for real-time monitoring.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const ctx = document.getElementById('pieChart').getContext('2d');
+new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: ['Safe (6)', 'Moderate (2)', 'High (2)'],
+        datasets: [{
+            data: [60, 20, 20],
+            backgroundColor: [
+                '#22c55e', // Safe - Green
+                '#f59e0b', // Moderate - Orange
+                '#ef4444'  // High - Red
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff',
+            hoverOffset: 10
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    font: {
+                        family: 'Inter',
+                        size: 14,
+                        weight: '600'
+                    },
+                    padding: 20,
+                    usePointStyle: true,
+                    pointStyle: 'circle'
+                }
+            },
+            datalabels: {
+                color: '#ffffff',
+                font: {
+                    family: 'Inter',
+                    size: 18,
+                    weight: '800'
+                },
+                formatter: (value) => {
+                    return value + '%';
+                }
+            },
+            tooltip: {
+                titleFont: { family: 'Inter', size: 14 },
+                bodyFont: { family: 'Inter', size: 14 },
+                padding: 12,
+                callbacks: {
+                    label: function(context) {
+                        return ' ' + context.label.split(' ')[0] + ': ' + context.parsed + '%';
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>

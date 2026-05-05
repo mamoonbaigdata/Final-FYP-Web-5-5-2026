@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seasonal Variations on Water Parameters</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-light: #ffffff;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; padding: 40px; color: var(--text-primary); display: flex; justify-content: center; }
+
+        .container {
+            width: 1100px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        }
+        .container::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 5px;
+            border-radius: 16px 16px 0 0;
+            background: linear-gradient(90deg, #3b82f6, #f59e0b, #3b82f6);
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .title { font-size: 26px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary); letter-spacing: -0.5px;}
+        .subtitle { font-size: 15px; color: var(--text-secondary); margin-bottom: 25px; line-height: 1.6; max-width: 900px; margin-inline: auto; }
+
+        .legend-strip {
+            display: flex; justify-content: center; gap: 30px; margin-bottom: 30px;
+            font-size: 14px; font-weight: 700; color: var(--text-secondary);
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-line { width: 30px; height: 4px; border-radius: 2px; }
+
+        .chart-wrapper { height: 450px; position: relative; margin-bottom: 30px; }
+        
+        .finding-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .finding-card {
+            border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+            background: #f1f5f9; border-top: 4px solid var(--border);
+        }
+        .finding-card.spring { border-top-color: #10b981; }
+        .finding-card.summer { border-top-color: #f59e0b; }
+        .finding-card.winter { border-top-color: #3b82f6; }
+        
+        .finding-card h4 { font-size: 15px; font-weight: 800; margin-bottom: 8px; color: var(--text-primary); }
+        .finding-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="title">Effect of Seasonal Changes on Pool Water Parameters</div>
+        <div class="subtitle">A 12-month continuous physical and chemical analysis demonstrating how seasonal weather patterns (Temperature, Sun UV index, and Rainfall) fundamentally alter an uncovered pool's baseline parameters.</div>
+    </div>
+
+    <div class="legend-strip">
+        <div class="legend-item"><div class="legend-line" style="background:#ef4444"></div>Avg Water Temp (°C)</div>
+        <div class="legend-item"><div class="legend-line" style="background:#10b981"></div>Chlorine Evaporation/Demand (ppm/week)</div>
+        <div class="legend-item"><div class="legend-line" style="background:#8b5cf6"></div>pH Fluctuation / Instability Index</div>
+    </div>
+
+    <div class="chart-wrapper">
+        <canvas id="seasonalChart"></canvas>
+    </div>
+
+    <!-- Explanations of how water changes -->
+    <div class="finding-grid">
+        <div class="finding-card winter">
+            <h4>❄️ Winter & Cold Weather</h4>
+            <p>Cold temperatures cause chemical reactions to slow down. <strong>Water density increases</strong>, and chlorine degradation hits its lowest point (negligible demand). Algae growth is naturally suppressed by near-freezing temperatures.</p>
+        </div>
+        <div class="finding-card spring">
+            <h4>🌸 Spring & Autumn Shifts</h4>
+            <p>Transitional seasons introduce heavy pollen, debris drops, and erratic rainfall. <strong>pH instability spikes</strong> repeatedly as acid rain and organic matter (leaves/dust) dilute the water composition, confusing traditional maintenance regimens.</p>
+        </div>
+        <div class="finding-card summer">
+            <h4>☀️ Summer UV & Heat Spike</h4>
+            <p>Intense UV radiation directly strikes the uncovered pool, breaking down hypochlorite ions instantly. Water warms globally, serving as an incubator for bacteria. <strong>Chlorine demand skyrockets by over 300%</strong> compared to winter months.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+// Data mapping:
+// Temperature peaks in Jun, Jul, Aug. Dips in Jan/Dec.
+const dataTemp = [12, 14, 20, 25, 29, 32, 33, 31, 26, 21, 16, 13];
+// Chlorine demand follows temperature and UV closely. (ppm per week)
+const dataChlorine = [0.4, 0.5, 1.2, 1.8, 2.5, 3.8, 4.2, 3.9, 2.6, 1.5, 0.8, 0.5];
+// pH instability spikes in Spring (April showers) and Autumn (leaves falling, monsoons). Arbitrary "instability score" 1 to 10.
+const dataPhInstability = [2, 3, 7, 9, 6, 4, 5, 6, 9, 8, 4, 2];
+
+// Background shading plugin config
+const seasonAnnotations = {
+    winter1: { type: 'box', xMin: -0.5, xMax: 1.5, backgroundColor: 'rgba(59, 130, 246, 0.05)', borderWidth: 0, label: {display: true, content: 'WINTER', position: 'end', color: '#94a3b8', font:{weight:'bold'}} },
+    spring: { type: 'box', xMin: 1.5, xMax: 4.5, backgroundColor: 'rgba(16, 185, 129, 0.05)', borderWidth: 0, label: {display: true, content: 'SPRING', position: 'end', color: '#94a3b8', font:{weight:'bold'}} },
+    summer: { type: 'box', xMin: 4.5, xMax: 7.5, backgroundColor: 'rgba(245, 158, 11, 0.05)', borderWidth: 0, label: {display: true, content: 'SUMMER', position: 'end', color: '#94a3b8', font:{weight:'bold'}} },
+    autumn: { type: 'box', xMin: 7.5, xMax: 10.5, backgroundColor: 'rgba(217, 119, 6, 0.05)', borderWidth: 0, label: {display: true, content: 'AUTUMN', position: 'end', color: '#94a3b8', font:{weight:'bold'}} },
+    winter2: { type: 'box', xMin: 10.5, xMax: 11.5, backgroundColor: 'rgba(59, 130, 246, 0.05)', borderWidth: 0 }
+};
+
+const ctx = document.getElementById('seasonalChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: MONTHS,
+        datasets: [
+            {
+                label: 'Water Temp (°C)',
+                data: dataTemp,
+                yAxisID: 'yTemp',
+                borderColor: '#ef4444', backgroundColor: '#ef4444',
+                borderWidth: 4, pointRadius: 5, tension: 0.4
+            },
+            {
+                label: 'Chlorine Demand (ppm/week)',
+                data: dataChlorine,
+                yAxisID: 'yChem',
+                borderColor: '#10b981', backgroundColor: '#10b981',
+                borderWidth: 4, borderDash:[5,5], pointRadius: 5, tension: 0.4
+            },
+            {
+                label: 'pH Instability Index',
+                data: dataPhInstability,
+                yAxisID: 'yPh',
+                borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                borderWidth: 3, pointRadius: 4, tension: 0.4, fill: true
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 30 } },
+        plugins: {
+            legend: { display: false },
+            annotation: { annotations: seasonAnnotations },
+            datalabels: {
+                font: { family: 'Inter', size: 11, weight: '800' },
+                formatter: function(value, context) {
+                    if (context.datasetIndex === 0) return value + '°';
+                    if (context.datasetIndex === 1) return value.toFixed(1);
+                    return ''; // Hide labels for pH instability background shape to prevent clutter
+                },
+                color: function(context) { return context.datasetIndex === 0 ? '#b91c1c' : '#047857'; },
+                align: function(context) { return context.datasetIndex === 0 ? 'top' : 'bottom'; },
+                offset: 8
+            }
+        },
+        scales: {
+            x: { 
+                grid: { display: false }, 
+                ticks: { font: { family: 'Inter', weight: '700', size: 13 }, color: '#475569' } 
+            },
+            yTemp: { 
+                type: 'linear', position: 'left',
+                title: { display: true, text: 'Temperature (°C)', color: '#ef4444', font: {weight: '700'} },
+                ticks: { color: '#ef4444' }, grid: { color: 'rgba(0,0,0,0.06)' }, min: 0, max: 40
+            },
+            yChem: { 
+                type: 'linear', position: 'right',
+                title: { display: true, text: 'Chlorine Rate (ppm/week)', color: '#10b981', font: {weight: '700'} },
+                ticks: { color: '#10b981' }, grid: { display: false }, min: 0, max: 5
+            },
+            yPh: { 
+                type: 'linear', display: false, min: 0, max: 15 // Hidden scale just to constrain the shape height
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>

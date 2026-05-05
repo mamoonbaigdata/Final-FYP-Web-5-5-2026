@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Parameter Monitoring</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-light: #ffffff;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: var(--text-primary);
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 1000px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .container::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            border-radius: 16px 16px 0 0;
+            background: linear-gradient(90deg, #ef4444, #3b82f6, #10b981, #f59e0b);
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .title { font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text-primary); }
+        .subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 15px; }
+
+        .chart-wrapper { 
+            height: 450px; 
+            position: relative; 
+            margin-bottom: 30px; 
+        }
+        
+        .finding {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 12px; padding: 20px;
+            font-size: 14px; line-height: 1.6; color: #991b1b;
+        }
+        .finding h4 {
+            margin-bottom: 8px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .finding ul {
+            padding-left: 20px;
+        }
+        .finding li {
+            margin-bottom: 4px;
+        }
+        .finding strong {
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="title">Multi-Parameter Monitoring (Combined Graph)</div>
+        <div class="subtitle">Simultaneous Tracking: Temperature, pH, Water Level & Chlorine</div>
+    </div>
+
+    <div class="chart-wrapper">
+        <canvas id="multiChart"></canvas>
+    </div>
+
+    <div class="finding">
+        <h4>Interpretation</h4>
+        <ul>
+            <li>High temperature + low chlorine + abnormal water level/turbidity = <strong>High Risk Zone</strong></li>
+            <li><strong>Combined parameter analysis</strong> is more effective than single-variable monitoring.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+const ctx = document.getElementById('multiChart').getContext('2d');
+
+const labels = ['08:00', '09:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00'];
+
+// Dataset from previous turns
+const tempData = [26, 27, 28, 30, 32, 33, 31, 29, 28, 27];
+const phData = [7.2, 7.3, 7.4, 7.6, 7.8, 8.0, 7.7, 7.5, 7.4, 7.3];
+const wlData = [120, 119, 118, 117, 115, 114, 116, 118, 119, 120];
+const chlData = [2.0, 1.9, 1.8, 1.5, 1.0, 0.8, 1.2, 1.6, 1.7, 1.9];
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Temperature (°C)',
+                data: tempData,
+                borderColor: '#ef4444',
+                backgroundColor: '#ef4444',
+                borderWidth: 3,
+                pointRadius: 4,
+                yAxisID: 'y-temp'
+            },
+            {
+                label: 'pH Level',
+                data: phData,
+                borderColor: '#10b981',
+                backgroundColor: '#10b981',
+                borderWidth: 3,
+                pointRadius: 4,
+                yAxisID: 'y-ph'
+            },
+            {
+                label: 'Water Level (cm)',
+                data: wlData,
+                borderColor: '#f59e0b',
+                backgroundColor: '#f59e0b',
+                borderWidth: 3,
+                pointRadius: 4,
+                yAxisID: 'y-wl'
+            },
+            {
+                label: 'Chlorine (mg/L)',
+                data: chlData,
+                borderColor: '#3b82f6',
+                backgroundColor: '#3b82f6',
+                borderWidth: 3,
+                pointRadius: 4,
+                yAxisID: 'y-chl'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: { font: { family: 'Inter', size: 13, weight: '600' } }
+            },
+            tooltip: {
+                titleFont: { family: 'Inter', size: 14 },
+                bodyFont: { family: 'Inter', size: 14, weight: 'bold' },
+                padding: 12
+            }
+        },
+        scales: {
+            x: {
+                title: { display: true, text: 'Time (Hour)', font: { family: 'Inter', weight: '600' } },
+                grid: { display: false }
+            },
+            'y-temp': {
+                type: 'linear', display: true, position: 'left',
+                title: { display: true, text: 'Temp (°C)', color: '#ef4444', font: {family: 'Inter', weight: 'bold'} },
+                grid: { color: 'rgba(0,0,0,0.05)' }, min: 20, max: 40
+            },
+            'y-chl': {
+                type: 'linear', display: true, position: 'left',
+                title: { display: true, text: 'Chlorine (mg/L)', color: '#3b82f6', font: {family: 'Inter', weight: 'bold'} },
+                grid: { display: false }, min: 0, max: 3
+            },
+            'y-ph': {
+                type: 'linear', display: true, position: 'right',
+                title: { display: true, text: 'pH Level', color: '#10b981', font: {family: 'Inter', weight: 'bold'} },
+                grid: { display: false }, min: 6, max: 9
+            },
+            'y-wl': {
+                type: 'linear', display: true, position: 'right',
+                title: { display: true, text: 'Water Level (cm)', color: '#f59e0b', font: {family: 'Inter', weight: 'bold'} },
+                grid: { display: false }, min: 100, max: 130
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>
